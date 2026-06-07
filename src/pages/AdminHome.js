@@ -37,7 +37,7 @@ function AdminHome() {
 
   const fetchBookings = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/bookings");
+      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/bookings");
       if (res.ok) {
         const data = await res.json();
         setBookings(data);
@@ -53,7 +53,7 @@ function AdminHome() {
 
   const fetchPackages = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/packages");
+      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages");
       if (res.ok) {
         const data = await res.json();
         setPackages(data);
@@ -94,7 +94,7 @@ function AdminHome() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/packages", {
+      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPkg)
@@ -124,7 +124,7 @@ function AdminHome() {
 
   const handleDeletePackage = async (pkgId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/packages/${pkgId}`, {
+      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/packages/${pkgId}`, {
         method: "DELETE"
       });
       if (res.ok) {
@@ -156,7 +156,7 @@ function AdminHome() {
     if (!selectedBookingId) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/bookings/${selectedBookingId}`, {
+      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/bookings/${selectedBookingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -213,7 +213,7 @@ function AdminHome() {
 
   const handleRevokeBooking = async (bookingId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/bookings/${bookingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

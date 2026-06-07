@@ -32,7 +32,7 @@ function Packages() {
 
   const fetchPackages = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/packages");
+      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages");
       if (res.ok) {
         const data = await res.json();
         setPackages(data);
@@ -183,7 +183,7 @@ function Packages() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/bookings", {
+      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingPayload)

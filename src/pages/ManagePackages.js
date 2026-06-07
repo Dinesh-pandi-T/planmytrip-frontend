@@ -20,7 +20,7 @@ function ManagePackages() {
 
   const fetchPackages = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/packages");
+      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages");
       if (res.ok) {
         const data = await res.json();
         setPackages(data);
@@ -63,7 +63,7 @@ function ManagePackages() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/packages", {
+      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPkg)
@@ -97,7 +97,7 @@ function ManagePackages() {
 
   const handleRemovePackage = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/packages/${id}`, {
+      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/packages/${id}`, {
         method: "DELETE"
       });
       if (res.ok) {

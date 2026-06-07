@@ -20,7 +20,7 @@ function UserHome() {
 
   const fetchUserBookings = async (email) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/bookings/user/${email}`);
+      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/bookings/user/${email}`);
       if (res.ok) {
         const data = await res.json();
         setBookings(data);
@@ -46,7 +46,7 @@ function UserHome() {
 
     const fetchPackagesList = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/packages");
+        const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages");
         if (res.ok) {
           const data = await res.json();
           setPackagesList(data);
@@ -69,7 +69,7 @@ function UserHome() {
 
   const handleCancelBooking = async (bookingId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/bookings/${bookingId}`, {
         method: "DELETE"
       });
       if (res.ok) {
