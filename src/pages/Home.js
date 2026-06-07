@@ -5,16 +5,16 @@ import { Star, MapPin, Clock, Users, Shield, Sparkles, Phone, Globe, ArrowRight,
 import './Home.css';
 
 function Home() {
-  const [role, setRole] = useState(null);
+  // const [role, setRole] = useState(null); // removed unused role state
   const [activeCategory, setActiveCategory] = useState('All');
 
   useEffect(() => {
-    const session = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    setRole(session.role || null);
+  // const session = JSON.parse(localStorage.getItem('currentUser') || '{}'); // removed unused session variable
+    // setRole(session.role || null); // role unused
 
     const syncSession = () => {
-      const updatedSession = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      setRole(updatedSession.role || null);
+      // const updatedSession = JSON.parse(localStorage.getItem('currentUser') || '{}'); // removed unused updatedSession variable
+      // setRole(updatedSession.role || null); // role unused
     };
 
     window.addEventListener('storage', syncSession);
