@@ -2,7 +2,7 @@
   --font-primary: 'Inter', sans-serif;
   --font-display: 'Outfit', sans-serif;
 
-  /* Color Palette */
+
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --primary-light: #eff6ff;
@@ -10,7 +10,7 @@
   --accent: #f97316;
   --accent-hover: #ea580c;
 
-  --bg-header: #e0f2fe; /* Light baby blue matching the screenshot */
+  --bg-header: #e0f2fe; 
   --bg-card: #ffffff;
   --bg-main: #f8fafc;
   --bg-footer: #0a0a0a;
@@ -21,7 +21,7 @@
   
   --border-color: #e2e8f0;
   
-  /* Shared values */
+
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;

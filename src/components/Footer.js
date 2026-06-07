@@ -20,7 +20,21 @@ function Footer() {
             </div>
           </div>
 
-          {/* Social media icons in the center */}
+          {/* Quick links in the center */}
+          <div className="footer-quick-links">
+            <span className="footer-links-title">Quick Links</span>
+            <div className="footer-links-row">
+              <a href="/faq" className="footer-quick-link">FAQ</a>
+              <span className="footer-links-sep">•</span>
+              <a href="/forgot-password" className="footer-quick-link">Reset Password</a>
+              <span className="footer-links-sep">•</span>
+              <a href="/about" className="footer-quick-link">About Us</a>
+              <span className="footer-links-sep">•</span>
+              <a href="/signup" className="footer-quick-link">Sign Up</a>
+            </div>
+          </div>
+
+          {/* Social media icons on the right */}
           <div className="footer-socials">
             {/* LinkedIn */}
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon linkedin" aria-label="LinkedIn">

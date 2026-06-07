@@ -65,6 +65,45 @@
   color: #0ea5e9;
 }
 
+/* Quick links section */
+.footer-quick-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-links-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.footer-links-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-quick-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-quick-link:hover { color: #e2e8f0; }
+
+.footer-links-sep {
+  color: #334155;
+  font-size: 0.7rem;
+}
+
 /* Socials section */
 .footer-socials {
   display: flex;

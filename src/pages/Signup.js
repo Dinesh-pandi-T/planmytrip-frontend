@@ -6,6 +6,7 @@ function Signup() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
+  const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,7 +15,7 @@ function Signup() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
@@ -22,6 +23,10 @@ function Signup() {
 
     if (name.trim().length < 3) {
       setError("Name must be at least 3 characters.");
+      return;
+    }
+    if (lastname.trim().length < 1) {
+      setError("Last name must be at least 1 characters.");
       return;
     }
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,39 +57,37 @@ function Signup() {
       return;
     }
 
-    const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
+    try {
+      const response = await fetch("http://localhost:5000/api/user/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: `${name.trim()} ${lastname.trim()}`, email, password }),
+      });
 
-    const userExists = existingUsers.some(
-      (user) => user.email.toLowerCase() === email.toLowerCase(),
-    );
+      const data = await response.json();
 
-    if (userExists) {
-      setError("Account already exists with this email.");
-      return;
+      if (!response.ok) {
+        setError(data.message || "Registration failed. Please try again.");
+        return;
+      }
+
+      setSuccess("Registration successful! Redirecting to login...");
+
+      setName("");
+      setLastName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setAgreeTerms(false);
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } catch (err) {
+      setError("Unable to connect to the server. Please check if the backend is running.");
     }
-
-    const newUser = {
-      id: Date.now(),
-      name,
-      email,
-      password,
-    };
-
-    existingUsers.push(newUser);
-
-    localStorage.setItem("users", JSON.stringify(existingUsers));
-
-    setSuccess("Registration successful! Redirecting to login...");
-
-    setName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setAgreeTerms(false);
-
-    setTimeout(() => {
-      navigate("/login");
-    }, 1500);
   };
 
   return (
@@ -106,32 +109,57 @@ function Signup() {
 
         <form className="signup-form" onSubmit={handleSubmit}>
 
-          <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+          <div className="form-row-2">
+            <div className="form-group">
+              <label htmlFor="name">First Name</label>
+              <div className="input-container">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="input-icon"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="John"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
 
-            <div className="input-container">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="input-icon"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-
-              <input
-                type="text"
-                id="name"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+            <div className="form-group">
+              <label htmlFor="lastname">Last Name</label>
+              <div className="input-container">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="input-icon"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <input
+                  type="text"
+                  id="lastname"
+                  placeholder="Doe"
+                  value={lastname}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
             </div>
           </div>
 

@@ -55,27 +55,40 @@ function Header() {
             Home
           </Link>
           <Link 
+            to="/packages" 
+            className={`nav-link ${location.pathname === '/packages' ? 'active' : ''}`}
+          >
+            Packages
+          </Link>
+          <Link 
             to="/about" 
             className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}
           >
             About Us
           </Link>
+          <Link 
+            to="/faq" 
+            className={`nav-link ${location.pathname === '/faq' ? 'active' : ''}`}
+          >
+            FAQ
+          </Link>
 
           {currentUser && currentUser.role === 'admin' && (
-            <>
-              <Link 
-                to="/manage-packages" 
-                className={`nav-link ${location.pathname === '/manage-packages' ? 'active' : ''}`}
-              >
-                Manage Packages
-              </Link>
-              <Link 
-                to="/dashboard" 
-                className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
-              >
-                Dashboard
-              </Link>
-            </>
+            <Link 
+              to="/manage-packages" 
+              className={`nav-link ${location.pathname === '/manage-packages' ? 'active' : ''}`}
+            >
+              Manage Packages
+            </Link>
+          )}
+
+          {currentUser && (
+            <Link 
+              to="/dashboard" 
+              className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+            >
+              Dashboard
+            </Link>
           )}
 
           {currentUser ? (

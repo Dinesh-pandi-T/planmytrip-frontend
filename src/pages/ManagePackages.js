@@ -18,50 +18,28 @@ function ManagePackages() {
   const [highlights, setHighlights] = useState('');
   const [price, setPrice] = useState('');
 
-  useEffect(() => {
-    // Sync packages list with local storage
-    const savedPackages = JSON.parse(localStorage.getItem('adminPackages') || '[]');
-    if (savedPackages.length === 0) {
-      const defaultPackages = [
-        {
-          id: 'pkg-1',
-          title: 'Goa Beach Tour',
-          location: 'Goa, India',
-          duration: '5N/6D',
-          image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
-          hotel: '3 Star Hotel',
-          activities: 5,
-          meals: 'Breakfast + Dinner',
-          transport: 'Airport Pickup',
-          highlights: 'Beach Photoshoot, Scuba Diving, Sunset Cruise',
-          price: '₹12,999',
-          tag: 'Best Seller',
-          rawPrice: 12999
-        },
-        {
-          id: 'pkg-2',
-          title: 'Alpine Swiss Valley Tour',
-          location: 'Switzerland',
-          duration: '7N/8D',
-          image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-          hotel: '5 Star Resort',
-          activities: 6,
-          meals: 'All Meals',
-          transport: 'First Class Train Pass',
-          highlights: 'Zermatt Hiking, Glacier Express, Cable Car Tour',
-          price: '₹1,49,999',
-          tag: 'Eco-Luxury',
-          rawPrice: 149999
-        }
-      ];
-      setPackages(defaultPackages);
-      localStorage.setItem('adminPackages', JSON.stringify(defaultPackages));
-    } else {
+  const fetchPackages = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/packages");
+      if (res.ok) {
+        const data = await res.json();
+        setPackages(data);
+      } else {
+        throw new Error("Failed to load packages");
+      }
+    } catch (err) {
+      console.error("Failed to load packages from server:", err);
+      // Fallback
+      const savedPackages = JSON.parse(localStorage.getItem('adminPackages') || '[]');
       setPackages(savedPackages);
     }
+  };
+
+  useEffect(() => {
+    fetchPackages();
   }, []);
 
-  const handleAddPackage = (e) => {
+  const handleAddPackage = async (e) => {
     e.preventDefault();
 
     if (!title || !destination || !duration || !image || !hotel || !activities || !meals || !transport || !highlights || !price) {
@@ -70,7 +48,6 @@ function ManagePackages() {
     }
 
     const newPkg = {
-      id: 'pkg-custom-' + Date.now(),
       title,
       location: destination,
       duration,
@@ -85,38 +62,56 @@ function ManagePackages() {
       rawPrice: parseInt(price)
     };
 
-    const updated = [newPkg, ...packages];
-    setPackages(updated);
-    localStorage.setItem('adminPackages', JSON.stringify(updated));
+    try {
+      const res = await fetch("http://localhost:5000/api/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPkg)
+      });
+      if (res.ok) {
+        fetchPackages();
+        window.dispatchEvent(new Event('storage'));
 
-    // Dispatch event so other components catch storage update
-    window.dispatchEvent(new Event('storage'));
+        // Clear form
+        setTitle('');
+        setDestination('');
+        setDuration('');
+        setImage('');
+        setHotel('');
+        setActivities('');
+        setMeals('');
+        setTransport('');
+        setHighlights('');
+        setPrice('');
 
-    // Clear form
-    setTitle('');
-    setDestination('');
-    setDuration('');
-    setImage('');
-    setHotel('');
-    setActivities('');
-    setMeals('');
-    setTransport('');
-    setHighlights('');
-    setPrice('');
-
-    setSuccessMsg('Holiday Package Added Successfully! 🎉');
-    setTimeout(() => setSuccessMsg(''), 3000);
+        setSuccessMsg('Holiday Package Added Successfully! 🎉');
+        setTimeout(() => setSuccessMsg(''), 3000);
+      } else {
+        alert("Failed to add package to database.");
+      }
+    } catch (err) {
+      console.error("Error adding package:", err);
+      alert("Failed to connect to backend server.");
+    }
   };
 
-  const handleRemovePackage = (id) => {
-    const updated = packages.filter(p => p.id !== id);
-    setPackages(updated);
-    localStorage.setItem('adminPackages', JSON.stringify(updated));
-
-    window.dispatchEvent(new Event('storage'));
-
-    setSuccessMsg('Package removed successfully.');
-    setTimeout(() => setSuccessMsg(''), 3000);
+  const handleRemovePackage = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/packages/${id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        fetchPackages();
+        window.dispatchEvent(new Event('storage'));
+        setSuccessMsg('Package removed successfully.');
+        setTimeout(() => setSuccessMsg(''), 3000);
+      } else {
+        alert("Failed to delete package from database.");
+      }
+    } catch (err) {
+      console.error("Error deleting package:", err);
+      alert("Failed to connect to backend server.");
+    }
   };
 
   return (

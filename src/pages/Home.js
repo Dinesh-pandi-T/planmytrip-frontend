@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import UserHome from './UserHome';
+
 import { Star, MapPin, Clock, Users, Shield, Sparkles, Phone, Globe, ArrowRight, ChevronRight } from 'lucide-react';
 import './Home.css';
 
@@ -21,9 +21,7 @@ function Home() {
     return () => window.removeEventListener('storage', syncSession);
   }, []);
 
-  if (role === 'user') {
-    return <UserHome />;
-  }
+
 
   const destinations = [
     {

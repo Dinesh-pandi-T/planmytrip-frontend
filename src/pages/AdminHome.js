@@ -28,63 +28,64 @@ function AdminHome() {
   const [newDuration, setNewDuration] = useState('5 Days / 4 Nights');
   const [newTag, setNewTag] = useState('Premium');
 
+  // Booking Logistics Modal States
+  const [showLogisticsModal, setShowLogisticsModal] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
+  const [pickupPoint, setPickupPoint] = useState('');
+  const [inchargeName, setInchargeName] = useState('');
+  const [inchargePhone, setInchargePhone] = useState('');
+
+  const fetchBookings = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/bookings");
+      if (res.ok) {
+        const data = await res.json();
+        setBookings(data);
+      } else {
+        throw new Error("Failed to load bookings");
+      }
+    } catch (err) {
+      console.error("Failed to load bookings from server:", err);
+      const allBookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+      setBookings(allBookings);
+    }
+  };
+
+  const fetchPackages = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/packages");
+      if (res.ok) {
+        const data = await res.json();
+        setPackages(data);
+      } else {
+        throw new Error("Failed to load packages");
+      }
+    } catch (err) {
+      console.error("Failed to load packages from server:", err);
+      // Fallback
+      const savedPackages = JSON.parse(localStorage.getItem('adminPackages') || '[]');
+      setPackages(savedPackages);
+    }
+  };
+
   useEffect(() => {
     // 1. Load users
     const registeredUsers = JSON.parse(localStorage.getItem('users') || '[]');
     setUsers(registeredUsers);
 
-    // 2. Load bookings
-    const allBookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
-    // Seed standard mock bookings if there are absolutely none, to make it look full
-    if (allBookings.length === 0) {
-      const defaultBookings = [
-        {
-          id: 'book-1',
-          title: 'Santorini Sunset Odyssey',
-          location: 'Greece',
-          date: 'June 20, 2026',
-          price: '$1,299',
-          status: 'Confirmed',
-          userEmail: 'explorer@example.com'
-        },
-        {
-          id: 'book-2',
-          title: 'Alpine Swiss Valley Tour',
-          location: 'Switzerland',
-          date: 'July 14, 2026',
-          price: '$1,850',
-          status: 'Pending Approval',
-          userEmail: 'adventure_fan@gmail.com'
-        }
-      ];
-      setBookings(defaultBookings);
-      localStorage.setItem('userBookings', JSON.stringify(defaultBookings));
-    } else {
-      setBookings(allBookings);
-    }
+    // 2. Load bookings from DB
+    fetchBookings();
 
     // 3. Load admin packages
-    const savedPackages = JSON.parse(localStorage.getItem('adminPackages') || '[]');
-    if (savedPackages.length === 0) {
-      const defaultPackages = [
-        { id: 'p-1', title: 'Santorini Sunset Odyssey', location: 'Greece', price: '$1,299', duration: '6 Days / 5 Nights', tag: 'Best Seller' },
-        { id: 'p-2', title: 'Alpine Swiss Valley Tour', location: 'Switzerland', price: '$1,850', duration: '7 Days / 6 Nights', tag: 'Eco-Luxury' },
-        { id: 'p-3', title: 'Kyoto Heritage Trails', location: 'Japan', price: '$1,420', duration: '5 Days / 4 Nights', tag: 'Cultural' }
-      ];
-      setPackages(defaultPackages);
-      localStorage.setItem('adminPackages', JSON.stringify(defaultPackages));
-    } else {
-      setPackages(savedPackages);
-    }
+    fetchPackages();
   }, []);
 
   // Package Management Actions
-  const handleAddPackage = (e) => {
+  const handleAddPackage = async (e) => {
     e.preventDefault();
     if (!newTitle || !newLocation || !newPrice) return;
 
     const newPkg = {
-      id: 'pkg-custom-' + Date.now(),
       title: newTitle,
       location: newLocation,
       price: newPrice.startsWith('$') ? newPrice : '$' + newPrice,
@@ -92,61 +93,161 @@ function AdminHome() {
       tag: newTag
     };
 
-    const updatedPackages = [...packages, newPkg];
-    setPackages(updatedPackages);
-    localStorage.setItem('adminPackages', JSON.stringify(updatedPackages));
+    try {
+      const res = await fetch("http://localhost:5000/api/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPkg)
+      });
+      if (res.ok) {
+        fetchPackages();
+        window.dispatchEvent(new Event('storage'));
 
-    // Reset Form Fields
-    setNewTitle('');
-    setNewLocation('');
-    setNewPrice('$');
-    setNewDuration('5 Days / 4 Nights');
-    setNewTag('Premium');
-    setShowAddModal(false);
+        // Reset Form Fields
+        setNewTitle('');
+        setNewLocation('');
+        setNewPrice('$');
+        setNewDuration('5 Days / 4 Nights');
+        setNewTag('Premium');
+        setShowAddModal(false);
 
-    setAdminSuccess('Successfully published new holiday package!');
-    setTimeout(() => setAdminSuccess(''), 3000);
+        setAdminSuccess('Successfully published new holiday package!');
+        setTimeout(() => setAdminSuccess(''), 3000);
+      } else {
+        alert("Failed to add package to database.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to connect to backend server.");
+    }
   };
 
-  const handleDeletePackage = (pkgId) => {
-    const updated = packages.filter(p => p.id !== pkgId);
-    setPackages(updated);
-    localStorage.setItem('adminPackages', JSON.stringify(updated));
-
-    setAdminSuccess('Holiday package deleted successfully.');
-    setTimeout(() => setAdminSuccess(''), 3000);
+  const handleDeletePackage = async (pkgId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/packages/${pkgId}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        fetchPackages();
+        window.dispatchEvent(new Event('storage'));
+        setAdminSuccess('Holiday package deleted successfully.');
+        setTimeout(() => setAdminSuccess(''), 3000);
+      } else {
+        alert("Failed to delete package from database.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to connect to backend server.");
+    }
   };
 
   // Booking Actions
   const handleApproveBooking = (bookingId) => {
-    const updated = bookings.map(b => {
-      if (b.id === bookingId) {
-        return { ...b, status: 'Confirmed' };
+    const existing = bookings.find(b => b.id === bookingId || b._id === bookingId);
+    setSelectedBookingId(bookingId);
+    setPickupPoint(existing?.pickupPoint || '');
+    setInchargeName(existing?.inchargeName || '');
+    setInchargePhone(existing?.inchargePhone || '');
+    setShowLogisticsModal(true);
+  };
+
+  const handleConfirmApprove = async (e) => {
+    e.preventDefault();
+    if (!selectedBookingId) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/bookings/${selectedBookingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: 'Confirmed',
+          pickupPoint,
+          inchargeName,
+          inchargePhone
+        })
+      });
+
+      if (res.ok) {
+        fetchBookings();
+        const allBookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+        const updated = allBookings.map(b => {
+          if (b.id === selectedBookingId || b._id === selectedBookingId) {
+            return {
+              ...b,
+              status: 'Confirmed',
+              pickupPoint,
+              inchargeName,
+              inchargePhone
+            };
+          }
+          return b;
+        });
+        localStorage.setItem('userBookings', JSON.stringify(updated));
+      } else {
+        throw new Error("Failed to update booking on server");
       }
-      return b;
-    });
-    setBookings(updated);
-    localStorage.setItem('userBookings', JSON.stringify(updated));
+    } catch (err) {
+      console.warn("Server update failed. Updating local storage fallback.", err);
+      const allBookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+      const updated = allBookings.map(b => {
+        if (b.id === selectedBookingId || b._id === selectedBookingId) {
+          return {
+            ...b,
+            status: 'Confirmed',
+            pickupPoint,
+            inchargeName,
+            inchargePhone
+          };
+        }
+        return b;
+      });
+      localStorage.setItem('userBookings', JSON.stringify(updated));
+      setBookings(updated);
+    }
 
-    // Trigger storage event so changes sync across components
+    setShowLogisticsModal(false);
     window.dispatchEvent(new Event('storage'));
-
-    setAdminSuccess('Booking status approved successfully!');
+    setAdminSuccess('Booking approved with travel logistics!');
     setTimeout(() => setAdminSuccess(''), 3000);
   };
 
-  const handleRevokeBooking = (bookingId) => {
-    const updated = bookings.map(b => {
-      if (b.id === bookingId) {
-        return { ...b, status: 'Cancelled' };
+  const handleRevokeBooking = async (bookingId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: 'Cancelled'
+        })
+      });
+
+      if (res.ok) {
+        fetchBookings();
+        const allBookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+        const updated = allBookings.map(b => {
+          if (b.id === bookingId || b._id === bookingId) {
+            return { ...b, status: 'Cancelled' };
+          }
+          return b;
+        });
+        localStorage.setItem('userBookings', JSON.stringify(updated));
+      } else {
+        throw new Error("Failed to revoke booking on server");
       }
-      return b;
-    });
-    setBookings(updated);
-    localStorage.setItem('userBookings', JSON.stringify(updated));
+    } catch (err) {
+      console.warn("Server revoke failed. Revoking locally.", err);
+      const allBookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+      const updated = allBookings.map(b => {
+        if (b.id === bookingId || b._id === bookingId) {
+          return { ...b, status: 'Cancelled' };
+        }
+        return b;
+      });
+      localStorage.setItem('userBookings', JSON.stringify(updated));
+      setBookings(updated);
+    }
 
     window.dispatchEvent(new Event('storage'));
-
     setAdminSuccess('Booking status cancelled.');
     setTimeout(() => setAdminSuccess(''), 3000);
   };
@@ -350,7 +451,15 @@ function AdminHome() {
                   {bookings.map((booking) => (
                     <tr key={booking.id}>
                       <td className="user-email-td">{booking.userEmail}</td>
-                      <td className="destination-td">{booking.title}</td>
+                      <td className="destination-td">
+                        <strong>{booking.title}</strong>
+                        {booking.travelerPhone && (
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            📞 {booking.travelerPhone} | 👥 {booking.numberOfTravelers} traveler(s)
+                            <div style={{ fontStyle: 'italic', opacity: 0.8, marginTop: '2px' }}>Details: {booking.travelerDetails}</div>
+                          </div>
+                        )}
+                      </td>
                       <td>{booking.date}</td>
                       <td className="cost-td">{booking.price}</td>
                       <td>
@@ -508,6 +617,62 @@ function AdminHome() {
                 </button>
                 <button type="submit" className="modal-submit-btn">
                   Publish Package
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Travel Logistics modal for booking confirmation */}
+      {showLogisticsModal && (
+        <div className="modal-overlay animate-fade-in">
+          <div className="modal-content glass animate-scale-up" style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h3>Confirm Booking Logistics</h3>
+              <button className="close-modal-btn" onClick={() => setShowLogisticsModal(false)}>×</button>
+            </div>
+            
+            <form onSubmit={handleConfirmApprove} className="modal-form">
+              <div className="modal-form-group">
+                <label>Pickup Point Location</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Airport Terminal 2 Gate 4"
+                  value={pickupPoint}
+                  onChange={(e) => setPickupPoint(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="modal-form-group">
+                <label>Trip Incharge / Guide Name</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Rohan Sharma"
+                  value={inchargeName}
+                  onChange={(e) => setInchargeName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="modal-form-group">
+                <label>Trip Incharge Contact Number</label>
+                <input 
+                  type="tel" 
+                  placeholder="e.g. +91 99887 76655"
+                  value={inchargePhone}
+                  onChange={(e) => setInchargePhone(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="modal-actions-row">
+                <button type="button" className="modal-cancel-btn" onClick={() => setShowLogisticsModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="modal-submit-btn">
+                  Approve & Save Logistics
                 </button>
               </div>
             </form>
