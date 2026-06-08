@@ -20,23 +20,27 @@ function Login() {
     setError('');
     setSuccess('');
 
-    // Handle hardcoded admin check
-    if (email.toLowerCase() === 'admin@gmail.com' && password === 'Admin@123') {
-      setError('');
-      setSuccess('Admin login successful! Entering control center...');
-      
+    //check Handle hardcoded admin 
+    if (
+      (email.toLowerCase() === "admin@gmail.com" && password === "Admin@123") ||
+      (email.toLowerCase() === "suryasekar626@gmail.com" &&
+      password === "Surya@123")
+    ) {
+      setError("");
+      setSuccess("Admin login successful! Entering control center...");
+
       const adminSession = {
-        name: 'System Admin',
-        email: 'admin@gmail.com',
-        role: 'admin'
+        name: "System Admin",
+        email: "admin@gmail.com",
+        role: "admin",
       };
-      localStorage.setItem('currentUser', JSON.stringify(adminSession));
-      
+      localStorage.setItem("currentUser", JSON.stringify(adminSession));
+
       // Dispatch event so layout catches update
-      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event("storage"));
 
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate("/dashboard");
       }, 1200);
       return;
     }

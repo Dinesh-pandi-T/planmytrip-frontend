@@ -114,12 +114,7 @@ function Header() {
               >
                 Login
               </Link>
-              <Link 
-                to="/signup" 
-                className={`nav-button-signup ${location.pathname === '/signup' ? 'active' : ''}`}
-              >
-                Sign Up
-              </Link>
+              
             </>
           )}
         </nav>
