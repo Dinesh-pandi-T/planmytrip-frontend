@@ -268,6 +268,7 @@
   box-shadow: var(--shadow-md);
   transition: var(--transition);
   cursor: pointer;
+  text-decoration: none;
 }
 
 .offer-card:hover {
@@ -423,6 +424,8 @@
   transition: var(--transition);
   display: flex;
   flex-direction: column;
+  text-decoration: none;
+  color: inherit;
 }
 
 .dest-card:hover {

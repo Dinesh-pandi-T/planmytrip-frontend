@@ -855,6 +855,7 @@
   flex-direction: column;
   overflow: hidden;
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .pkg-card:hover {

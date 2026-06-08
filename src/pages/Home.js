@@ -187,7 +187,7 @@ function Home() {
           </div>
         </div>
         <div className="offers-grid">
-          <div className="offer-card hill-card">
+          <Link to="/packages?search=Swiss" className="offer-card hill-card">
             <div className="offer-image-container">
               <img
                 src={`${process.env.PUBLIC_URL}/images/hill-station.png`}
@@ -207,9 +207,9 @@ function Home() {
               </div>
               <p className="offer-subtext">on buses, cabs, trains, holiday packages, stays and flights</p>
             </div>
-          </div>
+          </Link>
 
-          <div className="offer-card beach-card">
+          <Link to="/packages?search=Goa" className="offer-card beach-card">
             <div className="offer-image-container">
               <img
                 src={`${process.env.PUBLIC_URL}/images/beach-paradise.png`}
@@ -229,7 +229,7 @@ function Home() {
               </div>
               <p className="offer-subtext">On beaches, villas, holiday packages, stays and flights</p>
             </div>
-          </div>
+          </Link>
         </div>
       </section>
 
@@ -255,7 +255,7 @@ function Home() {
         </div>
         <div className="destinations-grid">
           {destinations.map(dest => (
-            <div key={dest.id} className="dest-card">
+            <Link key={dest.id} to={`/packages?search=${encodeURIComponent(dest.name.split(',')[0].trim())}`} className="dest-card">
               <div className="dest-img-wrapper">
                 <img src={dest.image} alt={dest.name} className="dest-img" />
                 <span className="dest-tag" style={{ background: dest.tagColor }}>{dest.tag}</span>
@@ -273,12 +273,12 @@ function Home() {
                     <span className="dest-price-label">From</span>
                     <span className="dest-price-val">{dest.price}</span>
                   </div>
-                  <Link to="/login" className="dest-book-btn">
+                  <span className="dest-book-btn">
                     Book Now <ChevronRight size={14} />
-                  </Link>
+                  </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

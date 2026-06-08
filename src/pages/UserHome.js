@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { Plus, Compass, Calendar, MapPin, Sparkles, Plane, Luggage, User, Hotel, Coffee } from 'lucide-react';
 import './UserHome.css';
 
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? "http://localhost:5000"
+  : "https://planmytrip-backend-68sp.onrender.com";
+
 function UserHome() {
   const [currentUser, setCurrentUser] = useState({ name: 'Traveler', email: '' });
   const [packagesList, setPackagesList] = useState([]);
@@ -20,7 +24,7 @@ function UserHome() {
 
   const fetchUserBookings = async (email) => {
     try {
-      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/bookings/user/${email}`);
+      const res = await fetch(`${API_BASE}/api/bookings/user/${email}`);
       if (res.ok) {
         const data = await res.json();
         setBookings(data);
@@ -46,7 +50,7 @@ function UserHome() {
 
     const fetchPackagesList = async () => {
       try {
-        const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages");
+        const res = await fetch(`${API_BASE}/api/packages`);
         if (res.ok) {
           const data = await res.json();
           setPackagesList(data);
@@ -69,7 +73,7 @@ function UserHome() {
 
   const handleCancelBooking = async (bookingId) => {
     try {
-      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/bookings/${bookingId}`, {
+      const res = await fetch(`${API_BASE}/api/bookings/${bookingId}`, {
         method: "DELETE"
       });
       if (res.ok) {
@@ -152,12 +156,23 @@ function UserHome() {
                       <span className={`status-label ${booking.status === 'Confirmed' ? 'active' : booking.status === 'Cancelled' ? 'cancelled' : 'pending'}`}>{booking.status}</span>
                     </div>
                     <div className="booking-details-col">
-                      <h3>{booking.title}</h3>
-                      <div className="booking-meta-row">
-                        <span><MapPin size={14} /> {booking.location}</span>
-                        <span><Calendar size={14} /> {booking.date}</span>
-                      </div>
-                    </div>
+                       <h3>{booking.title}</h3>
+                       <div className="booking-meta-row">
+                         <span><MapPin size={14} /> {booking.location}</span>
+                         <span><Calendar size={14} /> {booking.date}</span>
+                         {booking.numberOfTravelers && (
+                           <span style={{ fontSize: '0.8rem', opacity: 0.85, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                             👥 {booking.numberOfTravelers} (Veg: {booking.vegCount || 0} | Non-Veg: {booking.nonVegCount || 0})
+                           </span>
+                         )}
+                       </div>
+                       {booking.status === 'Confirmed' && (booking.pickupPoint || booking.inchargeName) && (
+                         <div className="booking-logistics-info" style={{ marginTop: '10px', fontSize: '0.825rem', color: '#475569', display: 'flex', flexWrap: 'wrap', gap: '15px', background: 'rgba(37, 99, 235, 0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(37, 99, 235, 0.15)', width: 'fit-content' }}>
+                           {booking.pickupPoint && <span>📍 <strong>Pickup:</strong> {booking.pickupPoint}</span>}
+                           {booking.inchargeName && <span>👤 <strong>Guide:</strong> {booking.inchargeName} {booking.inchargePhone && `(${booking.inchargePhone})`}</span>}
+                         </div>
+                       )}
+                     </div>
                     <div className="booking-action-col">
                       <span className="booking-price">{booking.price}</span>
                       {booking.status !== 'Cancelled' && (
@@ -203,7 +218,11 @@ function UserHome() {
             {/* Packages Grid */}
             <div className="packages-list-grid">
               {filteredPackages.map((pkg) => (
-                <div key={pkg.id} className="pkg-card glass">
+                <div 
+                  key={pkg.id} 
+                  className="pkg-card glass"
+                  onClick={() => handleBookPackage(pkg)}
+                >
                   <div className="pkg-img-box">
                     <img src={pkg.image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e'} alt={pkg.title} />
                     <span className="pkg-days-badge">{pkg.duration}</span>
@@ -234,7 +253,10 @@ function UserHome() {
                         {pkg.price}
                       </div>
                       <button
-                        onClick={() => handleBookPackage(pkg)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBookPackage(pkg);
+                        }}
                         className="pkg-book-btn"
                       >
                         <Plus size={16} /> Book Now

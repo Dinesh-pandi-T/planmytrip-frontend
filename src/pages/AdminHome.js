@@ -14,6 +14,10 @@ import {
 } from 'lucide-react';
 import './AdminHome.css';
 
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? "http://localhost:5000"
+  : "https://planmytrip-backend-68sp.onrender.com";
+
 function AdminHome() {
   const [bookings, setBookings] = useState([]);
   const [users, setUsers] = useState([]);
@@ -37,7 +41,7 @@ function AdminHome() {
 
   const fetchBookings = async () => {
     try {
-      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/bookings");
+      const res = await fetch(`${API_BASE}/api/bookings`);
       if (res.ok) {
         const data = await res.json();
         setBookings(data);
@@ -53,7 +57,7 @@ function AdminHome() {
 
   const fetchPackages = async () => {
     try {
-      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages");
+      const res = await fetch(`${API_BASE}/api/packages`);
       if (res.ok) {
         const data = await res.json();
         setPackages(data);
@@ -94,7 +98,7 @@ function AdminHome() {
     };
 
     try {
-      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages", {
+      const res = await fetch(`${API_BASE}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPkg)
@@ -124,7 +128,7 @@ function AdminHome() {
 
   const handleDeletePackage = async (pkgId) => {
     try {
-      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/packages/${pkgId}`, {
+      const res = await fetch(`${API_BASE}/api/packages/${pkgId}`, {
         method: "DELETE"
       });
       if (res.ok) {
@@ -156,7 +160,7 @@ function AdminHome() {
     if (!selectedBookingId) return;
 
     try {
-      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/bookings/${selectedBookingId}`, {
+      const res = await fetch(`${API_BASE}/api/bookings/${selectedBookingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -213,7 +217,7 @@ function AdminHome() {
 
   const handleRevokeBooking = async (bookingId) => {
     try {
-      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/bookings/${bookingId}`, {
+      const res = await fetch(`${API_BASE}/api/bookings/${bookingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -455,7 +459,7 @@ function AdminHome() {
                         <strong>{booking.title}</strong>
                         {booking.travelerPhone && (
                           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                            📞 {booking.travelerPhone} | 👥 {booking.numberOfTravelers} traveler(s)
+                            📞 {booking.travelerPhone} | 👥 {booking.numberOfTravelers} traveler(s) (Veg: {booking.vegCount || 0} | Non-Veg: {booking.nonVegCount || 0})
                             <div style={{ fontStyle: 'italic', opacity: 0.8, marginTop: '2px' }}>Details: {booking.travelerDetails}</div>
                           </div>
                         )}

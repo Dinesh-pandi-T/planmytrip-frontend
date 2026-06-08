@@ -14,6 +14,10 @@ import {
 } from 'lucide-react';
 import './Packages.css';
 
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? "http://localhost:5000"
+  : "https://planmytrip-backend-68sp.onrender.com";
+
 function Packages() {
   const navigate = useNavigate();
   const [packages, setPackages] = useState([]);
@@ -32,7 +36,7 @@ function Packages() {
 
   const fetchPackages = async () => {
     try {
-      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages");
+      const res = await fetch(`${API_BASE}/api/packages`);
       if (res.ok) {
         const data = await res.json();
         setPackages(data);
@@ -136,6 +140,8 @@ function Packages() {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutTravelers, setCheckoutTravelers] = useState(1);
+  const [vegCount, setVegCount] = useState(0);
+  const [nonVegCount, setNonVegCount] = useState(0);
   const [checkoutDetails, setCheckoutDetails] = useState('');
   const [checkoutDate, setCheckoutDate] = useState('');
 
@@ -149,6 +155,8 @@ function Packages() {
     setSelectedPkgForBooking(pkg);
     setCheckoutPhone('');
     setCheckoutTravelers(1);
+    setVegCount(0);
+    setNonVegCount(0);
     setCheckoutDetails('');
     const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const dateStr = futureDate.toISOString().split('T')[0];
@@ -179,11 +187,13 @@ function Packages() {
       date: formattedDate,
       travelerPhone: checkoutPhone,
       numberOfTravelers: Number(checkoutTravelers),
+      vegCount: Number(vegCount),
+      nonVegCount: Number(nonVegCount),
       travelerDetails: checkoutDetails
     };
 
     try {
-      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/bookings", {
+      const res = await fetch(`${API_BASE}/api/bookings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingPayload)
@@ -296,34 +306,39 @@ function Packages() {
       {/* Checkout Traveler Details Modal */}
       {showCheckoutModal && selectedPkgForBooking && (
         <div className="login-modal-overlay animate-fade-in">
-          <div className="login-modal-card glass animate-scale-up" style={{ maxWidth: '500px', width: '90%', padding: '2rem', borderRadius: 'var(--radius-lg)', background: 'var(--bg-card-glass)', backdropFilter: 'blur(20px)', border: '1px solid var(--border-light)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-light)', paddingBottom: '0.75rem' }}>
-              <h3 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--text-main)' }}>Complete Your Booking ✈️</h3>
-              <button onClick={() => setShowCheckoutModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
+          <div className="checkout-modal-card animate-scale-up">
+            <div className="checkout-modal-header">
+              <h3>Complete Your Booking ✈️</h3>
+              <button 
+                type="button" 
+                onClick={() => setShowCheckoutModal(false)} 
+                className="checkout-modal-close"
+              >
+                ×
+              </button>
             </div>
             
-            <div style={{ marginBottom: '1.25rem', padding: '0.75rem 1rem', borderRadius: '8px', background: 'var(--bg-glass)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selected Tour</span>
-              <strong style={{ color: 'var(--text-main)', fontSize: '1.1rem' }}>{selectedPkgForBooking.title}</strong>
-              <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)' }}>{selectedPkgForBooking.price} / Traveler</span>
+            <div className="checkout-tour-summary">
+              <span className="summary-label">Selected Tour</span>
+              <strong>{selectedPkgForBooking.title}</strong>
+              <span className="summary-price">{selectedPkgForBooking.price} / Traveler</span>
             </div>
 
-            <form onSubmit={handleConfirmBooking} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500', textAlign: 'left' }}>Traveler Contact Phone</label>
+            <form onSubmit={handleConfirmBooking} className="checkout-form">
+              <div className="checkout-form-group">
+                <label>Traveler Contact Phone</label>
                 <input 
                   type="tel" 
                   placeholder="e.g. +91 98765 43210" 
                   value={checkoutPhone} 
                   onChange={(e) => setCheckoutPhone(e.target.value)} 
                   required 
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'var(--bg-glass)', border: '1px solid var(--border-light)', color: 'var(--text-main)', outline: 'none' }}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                  <label style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500', textAlign: 'left' }}>Travelers Count</label>
+              <div className="checkout-form-row">
+                <div className="checkout-form-group">
+                  <label>Travelers Count</label>
                   <input 
                     type="number" 
                     min="1" 
@@ -331,47 +346,68 @@ function Packages() {
                     value={checkoutTravelers} 
                     onChange={(e) => setCheckoutTravelers(e.target.value)} 
                     required 
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'var(--bg-glass)', border: '1px solid var(--border-light)', color: 'var(--text-main)', outline: 'none' }}
                   />
                 </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                  <label style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500', textAlign: 'left' }}>Departure Date</label>
+                <div className="checkout-form-group">
+                  <label>Departure Date</label>
                   <input 
                     type="date" 
                     value={checkoutDate} 
                     onChange={(e) => setCheckoutDate(e.target.value)} 
                     required 
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'var(--bg-glass)', border: '1px solid var(--border-light)', color: 'var(--text-main)', outline: 'none' }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: '500', textAlign: 'left' }}>Passenger Details (Names & Ages)</label>
+              <div className="checkout-form-row">
+                <div className="checkout-form-group">
+                  <label>Veg Food Count</label>
+                  <input 
+                    type="number" 
+                    min="0" 
+                    max="10" 
+                    value={vegCount} 
+                    onChange={(e) => setVegCount(e.target.value)} 
+                    required 
+                  />
+                </div>
+                
+                <div className="checkout-form-group">
+                  <label>Non-Veg Food Count</label>
+                  <input 
+                    type="number" 
+                    min="0" 
+                    max="10" 
+                    value={nonVegCount} 
+                    onChange={(e) => setNonVegCount(e.target.value)} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="checkout-form-group">
+                <label>Passenger Details (Names & Ages)</label>
                 <textarea 
                   placeholder="e.g. John Doe (28), Jane Doe (26)" 
                   value={checkoutDetails} 
                   onChange={(e) => setCheckoutDetails(e.target.value)} 
                   required 
                   rows="3"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', background: 'var(--bg-glass)', border: '1px solid var(--border-light)', color: 'var(--text-main)', outline: 'none', resize: 'none' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <div className="checkout-form-actions">
                 <button 
                   type="button" 
                   onClick={() => setShowCheckoutModal(false)} 
                   className="btn-cancel"
-                  style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   className="btn-confirm"
-                  style={{ flex: 1, padding: '0.75rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
                 >
                   Confirm Booking
                 </button>
