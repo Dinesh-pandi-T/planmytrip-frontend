@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, MapPin, Hotel, Sparkles, Check, Coffee, Plane } from 'lucide-react';
+import { Plus, Trash2, MapPin, Hotel, Sparkles, Check, Coffee, Plane, Edit } from 'lucide-react';
 import './ManagePackages.css';
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? "http://localhost:5000"
+  : "https://planmytrip-backend-68sp.onrender.com";
 
 function ManagePackages() {
   const [packages, setPackages] = useState([]);
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Edit mode states
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingPackageId, setEditingPackageId] = useState(null);
 
   // Form states
   const [title, setTitle] = useState('');
@@ -20,7 +28,7 @@ function ManagePackages() {
 
   const fetchPackages = async () => {
     try {
-      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages");
+      const res = await fetch(`${API_BASE}/api/packages`);
       if (res.ok) {
         const data = await res.json();
         setPackages(data);
@@ -39,9 +47,7 @@ function ManagePackages() {
     fetchPackages();
   }, []);
 
-  const handleAddPackage = async (e) => {
-    e.preventDefault();
-
+  const handleAddPackage = async () => {
     if (!title || !destination || !duration || !image || !hotel || !activities || !meals || !transport || !highlights || !price) {
       alert('Please fill out all fields.');
       return;
@@ -63,7 +69,7 @@ function ManagePackages() {
     };
 
     try {
-      const res = await fetch("https://planmytrip-backend-68sp.onrender.com/api/packages", {
+      const res = await fetch(`${API_BASE}/api/packages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPkg)
@@ -95,12 +101,58 @@ function ManagePackages() {
     }
   };
 
+  const handleUpdatePackage = async () => {
+    if (!title || !destination || !duration || !image || !hotel || !activities || !meals || !transport || !highlights || !price) {
+      alert('Please fill out all fields.');
+      return;
+    }
+
+    const updatedPkg = {
+      title,
+      location: destination,
+      duration,
+      image,
+      hotel,
+      activities: parseInt(activities),
+      meals,
+      transport,
+      highlights,
+      price: price.toString().startsWith('₹') ? price : '₹' + Number(price).toLocaleString('en-IN'),
+      tag: 'Featured',
+      rawPrice: parseInt(price)
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/packages/${editingPackageId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedPkg)
+      });
+      if (res.ok) {
+        fetchPackages();
+        window.dispatchEvent(new Event('storage'));
+        handleCancelEdit();
+        setSuccessMsg('Holiday Package Updated Successfully! 🎉');
+        setTimeout(() => setSuccessMsg(''), 3000);
+      } else {
+        alert("Failed to update package in database.");
+      }
+    } catch (err) {
+      console.error("Error updating package:", err);
+      alert("Failed to connect to backend server.");
+    }
+  };
+
   const handleRemovePackage = async (id) => {
     try {
-      const res = await fetch(`https://planmytrip-backend-68sp.onrender.com/api/packages/${id}`, {
+      const res = await fetch(`${API_BASE}/api/packages/${id}`, {
         method: "DELETE"
       });
       if (res.ok) {
+        // If we are currently editing the deleted package, cancel edit mode
+        if (editingPackageId === id) {
+          handleCancelEdit();
+        }
         fetchPackages();
         window.dispatchEvent(new Event('storage'));
         setSuccessMsg('Package removed successfully.');
@@ -111,6 +163,50 @@ function ManagePackages() {
     } catch (err) {
       console.error("Error deleting package:", err);
       alert("Failed to connect to backend server.");
+    }
+  };
+
+  const handleEditClick = (pkg) => {
+    setIsEditMode(true);
+    setEditingPackageId(pkg.id || pkg._id);
+
+    setTitle(pkg.title || '');
+    setDestination(pkg.location || '');
+    setDuration(pkg.duration || '');
+    setImage(pkg.image || '');
+    setHotel(pkg.hotel || '');
+    setActivities(pkg.activities || '');
+    setMeals(pkg.meals || '');
+    setTransport(pkg.transport || '');
+    setHighlights(pkg.highlights || '');
+
+    // Extract numeric price (e.g. ₹12,999 -> 12999)
+    const numericPrice = pkg.price ? pkg.price.toString().replace(/[^0-9]/g, '') : '';
+    setPrice(numericPrice);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setEditingPackageId(null);
+
+    setTitle('');
+    setDestination('');
+    setDuration('');
+    setImage('');
+    setHotel('');
+    setActivities('');
+    setMeals('');
+    setTransport('');
+    setHighlights('');
+    setPrice('');
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isEditMode) {
+      handleUpdatePackage();
+    } else {
+      handleAddPackage();
     }
   };
 
@@ -140,9 +236,9 @@ function ManagePackages() {
         {/* Left Form Column */}
         <div className="form-column">
           <div className="form-card glass">
-            <h2>Add New Package</h2>
+            <h2>{isEditMode ? 'Edit Package' : 'Add New Package'}</h2>
             
-            <form onSubmit={handleAddPackage} className="package-form">
+            <form onSubmit={handleSubmit} className="package-form">
               <div className="form-group">
                 <label>Package Title</label>
                 <input 
@@ -262,9 +358,28 @@ function ManagePackages() {
                 />
               </div>
 
-              <button type="submit" className="add-btn">
-                <Plus size={18} /> Add Package
-              </button>
+              <div className="form-actions" style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" className="add-btn" style={{ flex: 1 }}>
+                  {isEditMode ? (
+                    <>
+                      <Check size={18} /> Update Package
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={18} /> Add Package
+                    </>
+                  )}
+                </button>
+                {isEditMode && (
+                  <button 
+                    type="button" 
+                    onClick={handleCancelEdit} 
+                    className="cancel-btn"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
         </div>
@@ -305,12 +420,20 @@ function ManagePackages() {
                     <div className="pkg-price-text">
                       {pkg.price}
                     </div>
-                    <button 
-                      onClick={() => handleRemovePackage(pkg.id)} 
-                      className="pkg-remove-btn"
-                    >
-                      <Trash2 size={16} /> Remove
-                    </button>
+                    <div className="pkg-action-buttons" style={{ display: 'flex', gap: '10px' }}>
+                      <button 
+                        onClick={() => handleEditClick(pkg)} 
+                        className="pkg-edit-btn"
+                      >
+                        <Edit size={16} /> Edit
+                      </button>
+                      <button 
+                        onClick={() => handleRemovePackage(pkg.id)} 
+                        className="pkg-remove-btn"
+                      >
+                        <Trash2 size={16} /> Remove
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

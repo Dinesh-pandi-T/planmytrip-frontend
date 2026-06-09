@@ -351,6 +351,46 @@
   box-shadow: 0 6px 12px rgba(239, 68, 68, 0.25);
 }
 
+.pkg-edit-btn {
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+  background-color: #0284c7;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 4px 6px rgba(2, 132, 199, 0.15);
+  transition: var(--transition);
+}
+
+.pkg-edit-btn:hover {
+  background-color: #0369a1;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(2, 132, 199, 0.25);
+}
+
+.cancel-btn {
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #475569;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.cancel-btn:hover {
+  background-color: #e2e8f0;
+}
+
 @media (max-width: 1000px) {
   .manage-grid {
     grid-template-columns: 1fr;
