@@ -186,10 +186,19 @@
 @media (max-width: 768px) {
   .footer-top {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
+  }
+  .footer-logo-section {
+    justify-content: center;
+  }
+  .footer-socials {
+    justify-content: center;
   }
   .footer-bottom-info {
     flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 1.5rem;
   }
 }

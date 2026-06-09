@@ -235,18 +235,21 @@
   text-decoration: underline;
 }
 
-.form-row-2 {
+.signup-card .form-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
+@media (max-width: 640px) {
+  .signup-card .form-row-2 {
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
+  }
+}
+
 @media (max-width: 480px) {
   .signup-card {
     padding: 2rem 1.25rem;
-  }
-  .form-row-2 {
-    grid-template-columns: 1fr;
-    gap: 1.1rem;
   }
 }

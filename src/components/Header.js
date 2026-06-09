@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import './Header.css';
 
 function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Close mobile menu on page transition
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     // 1. Initial active session detection
@@ -36,7 +43,7 @@ function Header() {
     <header className="site-header">
       <div className="header-container">
         {/* Logo Section */}
-        <Link to="/" className="logo-section">
+        <Link to="/" className="logo-section" onClick={() => setIsMenuOpen(false)}>
           <div className="logo-box">
             <img src="/images/logo.png" alt="PlanMyTrip Logo" className="logo-img" />
             <div className="logo-text">
@@ -46,29 +53,42 @@ function Header() {
           </div>
         </Link>
 
+        {/* Mobile Toggle Button */}
+        <button 
+          className="nav-toggle-btn" 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle navigation"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
         {/* Navigation Section */}
-        <nav className="nav-menu">
+        <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <Link 
             to="/" 
             className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
           >
             Home
           </Link>
           <Link 
             to="/packages" 
             className={`nav-link ${location.pathname === '/packages' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
           >
             Packages
           </Link>
           <Link 
             to="/about" 
             className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
           >
             About Us
           </Link>
           <Link 
             to="/faq" 
             className={`nav-link ${location.pathname === '/faq' ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen(false)}
           >
             FAQ
           </Link>
@@ -77,6 +97,7 @@ function Header() {
             <Link 
               to="/manage-packages" 
               className={`nav-link ${location.pathname === '/manage-packages' ? 'active' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
             >
               Manage Packages
             </Link>
@@ -86,6 +107,7 @@ function Header() {
             <Link 
               to="/dashboard" 
               className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
             >
               Dashboard
             </Link>
@@ -100,7 +122,10 @@ function Header() {
               </div>
               
               <button 
-                onClick={handleLogout} 
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }} 
                 className="nav-logout-btn"
               >
                 Sign Out
@@ -111,6 +136,7 @@ function Header() {
               <Link 
                 to="/login" 
                 className={`nav-link ${location.pathname === '/login' ? 'active' : ''}`}
+                onClick={() => setIsMenuOpen(false)}
               >
                 Login
               </Link>

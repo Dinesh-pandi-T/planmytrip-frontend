@@ -689,6 +689,9 @@
     flex-direction: column;
     align-items: stretch;
   }
+  .category-tabs-container {
+    justify-content: center;
+  }
 }
 
 /* Checkout Booking Details Modal styles */
