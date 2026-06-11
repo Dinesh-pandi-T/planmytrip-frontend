@@ -21,16 +21,6 @@ function ForgotPassword() {
       return;
     }
 
-    // Check if email exists in localStorage (registered users)
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const adminEmail = 'admin@gmail.com';
-    const userExists = users.some(u => u.email === email) || email === adminEmail;
-
-    if (!userExists) {
-      setError('No account found with this email address.');
-      return;
-    }
-
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -91,10 +81,22 @@ function ForgotPassword() {
       // Update password in localStorage for the demo user
       const users = JSON.parse(localStorage.getItem('users') || '[]');
       const resetEmail = sessionStorage.getItem('resetEmail');
-      const updatedUsers = users.map(u =>
-        u.email === resetEmail ? { ...u, password: newPassword } : u
-      );
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
+      const userIndex = users.findIndex(u => u.email === resetEmail);
+      if (userIndex >= 0) {
+        users[userIndex].password = newPassword;
+      } else {
+        // If user didn't exist in local storage yet, create a mock account so they can log in
+        users.push({
+          name: resetEmail.split('@')[0],
+          email: resetEmail,
+          password: newPassword,
+          role: resetEmail === 'admin@gmail.com' ? 'admin' : 'user'
+        });
+      }
+      
+      localStorage.setItem('users', JSON.stringify(users));
+      
       sessionStorage.removeItem('resetOtp');
       sessionStorage.removeItem('resetEmail');
       setLoading(false);

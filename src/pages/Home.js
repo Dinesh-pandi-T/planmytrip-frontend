@@ -124,7 +124,42 @@ function Home() {
       {/* 1. Hero Banner */}
       <section className="hero-section">
         <div className="hero-banner">
-          <div className="hero-bg-overlay"></div>
+          <div className="hero-image-col">
+            <div className="image-wrapper">
+              <img
+                src={`${process.env.PUBLIC_URL}/images/hero-banner.png`}
+                alt="Beautiful Landscape"
+                className="hero-main-img"
+              />
+              {/* Floating Images */}
+              <img
+                src={`${process.env.PUBLIC_URL}/images/beach-paradise.png`}
+                alt="Beach Paradise"
+                className="hero-float-pic float-pic-1"
+              />
+              <img
+                src={`${process.env.PUBLIC_URL}/images/santorini.png`}
+                alt="Santorini"
+                className="hero-float-pic float-pic-2"
+              />
+              
+              <div className="hero-glass-card card-top">
+                <span>✈️</span>
+                <div>
+                  <strong>Instant Booking</strong>
+                  <p>Confirm in seconds</p>
+                </div>
+              </div>
+              <div className="hero-glass-card card-bottom">
+                <span>⭐</span>
+                <div>
+                  <strong>4.9 Rating</strong>
+                  <p>10K+ reviews</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div className="hero-content">
             <span className="hero-chip">🌍 Trusted by 10,000+ Travelers</span>
             <h1 className="hero-title">Discover The World,<br /><span className="hero-title-accent">Your Way</span></h1>
@@ -134,7 +169,7 @@ function Home() {
             </p>
             <div className="hero-actions">
               <Link to="/login" className="hero-btn-primary">
-                Start Planning <ArrowRight size={16} />
+                Start Planning <ArrowRight size={18} />
               </Link>
               <Link to="/about" className="hero-btn-secondary">
                 Learn More
@@ -151,27 +186,6 @@ function Home() {
               <div className="hero-stat-divider"></div>
               <div className="hero-stat">
                 <strong>4.9★</strong><span>Avg Rating</span>
-              </div>
-            </div>
-          </div>
-          <div className="hero-image-col">
-            <img
-              src={`${process.env.PUBLIC_URL}/images/santorini.png`}
-              alt="Santorini"
-              className="hero-float-img"
-            />
-            <div className="hero-float-card card-1">
-              <span>✈️</span>
-              <div>
-                <strong>Instant Booking</strong>
-                <p>Confirm in seconds</p>
-              </div>
-            </div>
-            <div className="hero-float-card card-2">
-              <span>⭐</span>
-              <div>
-                <strong>4.9 Rating</strong>
-                <p>10K+ reviews</p>
               </div>
             </div>
           </div>

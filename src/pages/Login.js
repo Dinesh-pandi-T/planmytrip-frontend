@@ -148,7 +148,7 @@ function Login() {
           </div>
 
           <button type="submit" className="submit-btn">
-            Authenticate Account
+            Login
           </button>
         </form>
 
