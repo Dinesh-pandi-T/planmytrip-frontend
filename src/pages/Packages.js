@@ -368,8 +368,7 @@ function Packages() {
                     min="0" 
                     max="10" 
                     value={vegCount} 
-                    onChange={(e) => setVegCount(e.target.value)} 
-                    required 
+                    onChange={(e) => setVegCount(e.target.value)}   
                   />
                 </div>
                 
@@ -381,7 +380,6 @@ function Packages() {
                     max="10" 
                     value={nonVegCount} 
                     onChange={(e) => setNonVegCount(e.target.value)} 
-                    required 
                   />
                 </div>
               </div>
